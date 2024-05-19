@@ -11,7 +11,7 @@ const LoginForm = ({ setLog }) => {
     email: "",
     password: "",
   });
-
+ 
   const submitHandler = (e) => {
     e.preventDefault();
     dispatch(login(email, password, navigate));

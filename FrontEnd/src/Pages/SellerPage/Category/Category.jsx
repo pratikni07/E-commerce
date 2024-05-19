@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useEffect, useState} from 'react'
 import { User, LogOut, LayoutDashboard, Home, Shirt, Component,Search,FilePenLine,Trash2 ,SquarePlus,PanelsTopLeft,Settings2,Users,ShoppingBag ,CreditCard} from 'lucide-react';
 import { Link } from 'react-router-dom'
 
@@ -14,7 +14,10 @@ import {
     TableHeader,
     TableRow,
   } from "@/components/ui/table"
-   
+import CategoryForm from '../Forms/CategoryForm';
+import { getAllCategories } from '@/services/operations/categoryAPI';
+import SubCategoryForm from '../Forms/SubCategoryForm';
+
   const invoices = [
     {
       invoice: "INV001",
@@ -60,6 +63,22 @@ import {
     },
   ]
 const Category = () => {
+
+  const [ categories , setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getAllCategories();
+        console.log(res)
+        setCategories(res);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+   
   return (
     <div >
         <div className='h-[10vh] flex fixed top-0 w-full z-20 items-center justify-between bg-[#242F66] p-4'>
@@ -94,31 +113,11 @@ const Category = () => {
 
             <div className='bg-white p-4 rounded-md'>
                 <h1 className='font-bold text-[20px]'>Add Category</h1>
-                <form className='mt-3'>
-                    <Input type="text" placeholder="Enter category" />
-                    <Button className="bg-[#242F66] hover:bg-[#242F66] mt-4 ">
-                        <Input type="submit" value="Submit" className="bg-[#242F66] border-none"/>
-                    </Button>
-                </form>
+                <CategoryForm />
             </div>
             <div className='bg-white p-4 rounded-md mt-3'>
                 <h1 className='font-bold text-[20px]'>Add SubCategory</h1>
-                <form className='mt-3'>
-                    <Label > Select Category</Label>
-                    <select
-                        id="subcategory"
-                        name="subcategory"
-                        className="block w-full rounded-md border border-gray-300 mb-3 py-2 px-4 text-gray-900 placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    >
-                        <option>United States</option>
-                        <option>Canada</option>
-                        <option>Mexico</option>
-                    </select>
-                    <Input type="text" placeholder="Enter sub category" />
-                    <Button className="bg-[#242F66] hover:bg-[#242F66] mt-4 ">
-                        <Input type="submit" value="Submit" className="bg-[#242F66] border-none"/>
-                    </Button>
-                </form>
+                <SubCategoryForm categories={categories}/>
             </div>
             <div className='bg-white p-4 rounded-md mt-3'>
                 <div className='flex justify-between mb-5 items-center'>
@@ -134,21 +133,30 @@ const Category = () => {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                        <TableHead className="w-[200px]">Category</TableHead>
-                        <TableHead>Sub Categories</TableHead>
-                        <TableHead>Products</TableHead>
+                        <TableHead className="w-[200px]">Category Image</TableHead>
+                        <TableHead className="w-[100px]">Category</TableHead>
+                        <TableHead className="w-[100px]">Sub Categories</TableHead>
+                        <TableHead className="w-[100px]">Products</TableHead>
 
-                        <TableHead className="text-right w-[100px]">Edit</TableHead>
-                        <TableHead className="text-right w-[100px]">Delete</TableHead>
+                        <TableHead className="w-[100px]">Edit</TableHead>
+                        <TableHead className=" w-[100px]">Delete</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {invoices.map((invoice) => (
-                        <TableRow key={invoice.invoice}>
-                            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-                            <TableCell>{invoice.paymentStatus}</TableCell>
-                            <TableCell>{invoice.paymentMethod}</TableCell>
-                            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+                        {categories.map((category) => (
+                        <TableRow key={category._id}>
+                          <TableCell className="font-medium">
+                            <img src={ `${category.image}`} width={200} height={100}/>
+                          </TableCell>
+                            <TableCell className="font-medium">{category.name}</TableCell>
+                            <TableCell>{category.subcategories.length}</TableCell>
+                            <TableCell>{category.products.length}</TableCell>
+                            <TableCell className=" cursor-pointer">
+                                <FilePenLine />
+                            </TableCell>
+                            <TableCell className="">
+                                <Trash2 className='' />
+                            </TableCell>
                         </TableRow>
                         ))}
                     </TableBody>

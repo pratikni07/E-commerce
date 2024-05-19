@@ -33,6 +33,7 @@ const UIPage = () => {
         {/* Right bar */}
         <div className='w-[80%] ml-[20%] bg-[#f5f7f9] h-full p-4 text-[#2E4767]'>
           <UIHomeSlider/>
+          {/* Ui Offer page */}
         </div>
       </div>
     </div>

@@ -1,31 +1,51 @@
 const Category = require("../models/category");
 const Subcategory = require("../models/SubCategory");
-
+const cloudinary = require("../config/cloudinary")
 // Create a new category
 exports.addCategory = async (req, res) => {
   try {
-    const categoryData = req.body;
-    const { name, image, description } = categoryData;
+    const categoryData = req.body.categoryData;
+    const image = req.body.image;
 
-    if (!name || !image || !description) {
+    const { category, description } = categoryData;
+
+    // Check if all required fields are present
+    if (!category || !image || !description) {
       return res.status(400).json({
         success: false,
-        message: "all field required",
+        message: "All fields are required",
       });
     }
-    const category = await new Category({
-      name,
-      image,
+    // Check if category already exists
+    const isExist = await Category.findOne({ name: category });
+    if (isExist) {
+      return res.status(500).json({
+        success: false,
+        message: "Category already exists",
+      });
+    }
+
+    // Upload image to Cloudinary
+    const cloudinary_res = await cloudinary.uploader.upload(image, {
+      folder: "/ecommerce/category",
+      public_id: category 
+    });
+
+
+    const imageUrl = cloudinary_res.secure_url;
+    const categoryToAdd = await Category.create({
+      name:category,
+      image: imageUrl, // Use the Cloudinary URL here
       description,
     });
 
-    await category.save();
     res.status(201).json({
       success: true,
       message: "Category created successfully",
-      category,
+      category: categoryToAdd, // You can include the added category data in the response if needed
     });
   } catch (error) {
+    // Handle server errors
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -33,8 +53,9 @@ exports.addCategory = async (req, res) => {
   }
 };
 
+
 // Get all categories
-exports.getCategories = async (req, res) => {
+exports.getAllCategories = async (req, res) => {
   try {
     const categories = await Category.find();
     res.status(200).json({

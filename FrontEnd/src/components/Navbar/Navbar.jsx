@@ -11,10 +11,6 @@ import {
 } from "@/components/ui/tooltip";
 import {
   Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import SideCart from "../Cart/SideCart";

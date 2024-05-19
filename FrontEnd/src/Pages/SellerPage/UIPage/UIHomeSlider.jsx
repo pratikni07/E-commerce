@@ -38,9 +38,7 @@ const UIHomeSlider = () => {
       <div>
         <HomeSliderForm/>
       </div>
-      <div>
-        Offer Sections 
-      </div>
+     
     </div>
   );
 };

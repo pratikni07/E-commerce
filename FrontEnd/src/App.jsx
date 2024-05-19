@@ -20,8 +20,8 @@ function App() {
 
   return (
     <>
-      {pathname !== "/sellerdashboard" && <NavbarTopAds />}
-      {pathname !== "/sellerdashboard" && <Navbar />}
+      {/* {pathname !== "/sellerdashboard" && <NavbarTopAds />} */}
+      {/* {pathname !== "/sellerdashboard" && <Navbar />} */}
       <Routes>
         <Route path="/" element={<Home />} />
         {/* <Route path="/product/:id" element={<ProductPage />} /> */}
@@ -35,7 +35,7 @@ function App() {
         <Route path="/seller/setting" element={<SettingPage/>} />
 
       </Routes>
-      {pathname !== "/seller/uipage" && <Footer />}
+      {/* {pathname !== "/seller/uipage" && <Footer />} */}
       {/* {pathname !== "/sellerdashboard" && <Footer />} */}
       
     </>
