@@ -117,7 +117,7 @@ const Category = () => {
             </div>
             <div className='bg-white p-4 rounded-md mt-3'>
                 <h1 className='font-bold text-[20px]'>Add SubCategory</h1>
-                <SubCategoryForm categories={categories}/>
+                <SubCategoryForm  categories={categories}/>
             </div>
             <div className='bg-white p-4 rounded-md mt-3'>
                 <div className='flex justify-between mb-5 items-center'>

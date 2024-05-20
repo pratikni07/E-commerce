@@ -48,7 +48,7 @@ const SubCategoryForm = ({ categories }) => {
     };
 
     return (
-        <div>
+
             <form className="mt-3" onSubmit={submitHandler}>
                 <label htmlFor="category">Select Category</label>
                 <select
@@ -121,7 +121,7 @@ const SubCategoryForm = ({ categories }) => {
                     Submit
                 </button>
             </form>
-        </div>
+
     );
 };
 
