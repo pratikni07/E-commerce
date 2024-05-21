@@ -6,6 +6,7 @@ exports.addCategory = async (req, res) => {
   try {
     const categoryData = req.body.categoryData;
     const image = req.body.image;
+    // console.log(image)
 
     const { category, description } = categoryData;
 
@@ -57,10 +58,24 @@ exports.addCategory = async (req, res) => {
 // Get all categories
 exports.getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find();
+    const categories = await Category.find().populate("subcategories");
     res.status(200).json({
       success: true,
       categories,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+exports.getAllSubCategories = async (req, res) => {
+  try {
+    const subcategories = await Subcategory.find();
+    res.status(200).json({
+      success: true,
+      subcategories,
     });
   } catch (error) {
     res.status(500).json({

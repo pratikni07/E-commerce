@@ -4,7 +4,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  shortdiscription: {
+  shortdescription: {
     type: String,
     required: true,
   },
@@ -33,18 +33,16 @@ const productSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  category: [
+  category: 
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
     },
-  ],
-  subcategory: [
+  subcategory: 
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Subcategory",
     },
-  ],
 
   sizes: [
     {

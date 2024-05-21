@@ -8,6 +8,12 @@ export const endpoints = {
 
 export const category ={
     ADD_CATEGORY  : BASE_URL + "/category/addcategory",
+    GET_ALL_SUB_CATEGORIES : BASE_URL + "/category/getallsubcategories", 
     ADD_SUB_CATEGORY  : BASE_URL + "/category/addsubcategory",
     GET_ALL_CATEGORIES : BASE_URL + "/category/getallcategories"
+}
+
+export const product = {
+    ADD_PRODUCT : BASE_URL + "/product/addProduct",
+    GET_ALL_PRODUCT : BASE_URL + "/product/addProduct"
 }
