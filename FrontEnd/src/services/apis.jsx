@@ -17,3 +17,7 @@ export const product = {
     ADD_PRODUCT : BASE_URL + "/product/addProduct",
     GET_ALL_PRODUCT : BASE_URL + "/product/addProduct"
 }
+export const design = {
+    ADD_HERO_SLIDER : BASE_URL + "/design/addhomeslider",
+    GET_HERO_SLIDER : BASE_URL + "/design/gethomeslider",
+}
