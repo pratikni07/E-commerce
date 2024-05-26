@@ -2,9 +2,11 @@ import Hero from "@/components/HomePage/Hero";
 import HomeProducts from "@/components/HomePage/HomeProducts";
 import MensCategory from "@/components/HomePage/MensCategory";
 import Testimonials from "@/components/Testimonials";
-import React from "react";
+import React, { useState } from "react";
 
 const Home = () => {
+  const [mensCategories , setMensCategories] = useState([])
+
   return (
     <div>
       <div className="w-[90%] m-auto ">

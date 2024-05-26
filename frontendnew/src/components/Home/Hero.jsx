@@ -23,23 +23,21 @@ const Hero = () => {
     fetchHeroSlider();
   }, []);
   return (
-    <div className="relative">
-      <Carousel>
-        <CarouselContent>
+    <div className="relative m-auto mt-2">
+      <Carousel className="w-full ">
+        <CarouselContent> 
           {
             heroSlider.map((hero, key) => (
               <CarouselItem key={key}>
                 <img
                   src={hero.image}
                   alt="Slide 1"
-                  className="w-full"
+                  className="cursor-pointer"
                 />
               </CarouselItem>
             ))
           }
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
       </Carousel>
     </div>
   );

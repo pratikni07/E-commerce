@@ -16,12 +16,16 @@ import SettingPage from "./Pages/SellerPage/Settings/SettingPage";
 
 function App() {
   const location = useLocation();
-  const { pathname } = location;
-
+  const renderNavbar =
+    location.pathname !==  "/seller/dashboard" &&
+    location.pathname !== "/seller/uipage" &&
+    location.pathname !== "/seller/category" &&
+    location.pathname !== "/seller/showproducts" &&
+    location.pathname !== "/seller/addproduct" &&
+    location.pathname !== "/seller/setting";
   return (
     <>
-      {/* {pathname !== "/sellerdashboard" && <NavbarTopAds />} */}
-      {/* {pathname !== "/sellerdashboard" && <Navbar />} */}
+    {renderNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         {/* <Route path="/product/:id" element={<ProductPage />} /> */}
@@ -35,8 +39,7 @@ function App() {
         <Route path="/seller/setting" element={<SettingPage/>} />
 
       </Routes>
-      {/* {pathname !== "/seller/uipage" && <Footer />} */}
-      {/* {pathname !== "/sellerdashboard" && <Footer />} */}
+      {renderNavbar && <Footer />}
       
     </>
   );
