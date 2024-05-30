@@ -15,12 +15,14 @@ const categorySchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Subcategory",
+      default: [],
     },
   ],
   products: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
+      default: [],
     },
   ],
 });

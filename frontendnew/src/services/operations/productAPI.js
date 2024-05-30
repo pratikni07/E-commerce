@@ -10,7 +10,7 @@ const {
 export function addProduct(productData,navigate) {
     return async () => {
         try {
-            console.log("product")
+            console.log(productData)
             const response = await apiConnector("POST", ADD_PRODUCT, {
                 productData,
             });
@@ -18,9 +18,18 @@ export function addProduct(productData,navigate) {
             if (!response.data.success) {
                 throw new Error(response.data.message);
             }
-            navigate("/seller/product")
+            navigate("/seller/showproducts")
         } catch (error) {
             console.log("ADD PRODUCT API ERROR:", error);
         }
     };
+}
+
+export async function getAllProducts() {
+    try {
+        const response = await apiConnector("GET", GET_ALL_PRODUCT);
+        return response;
+    } catch (error) {
+        console.log("GET ALL PRODUCT API ERROR:", error);
+    }
 }

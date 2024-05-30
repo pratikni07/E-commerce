@@ -15,7 +15,7 @@ export const category ={
 
 export const product = {
     ADD_PRODUCT : BASE_URL + "/product/addProduct",
-    GET_ALL_PRODUCT : BASE_URL + "/product/addProduct"
+    GET_ALL_PRODUCT : BASE_URL + "/product/getProduct"
 }
 export const design = {
     ADD_HERO_SLIDER : BASE_URL + "/design/addhomeslider",

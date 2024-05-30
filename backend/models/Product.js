@@ -13,7 +13,7 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   newPrice: {
-    type: Number,
+    type: String,
     required: true,
   },
   oldPrice: {
@@ -27,23 +27,21 @@ const productSchema = new mongoose.Schema({
   images: [
     {
       type: String,
-      // You may want to add additional validation for image URLs
     },
   ],
   description: {
     type: String,
   },
-  category: 
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-    },
-  subcategory: 
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Subcategory",
-    },
-
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category",
+    required: true,
+  },
+  subcategory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subcategory",
+    required: true,
+  },
   sizes: [
     {
       size: {
@@ -54,14 +52,13 @@ const productSchema = new mongoose.Schema({
       },
     },
   ],
-
   stock: {
     type: Number,
     required: true,
   },
   isAvailable: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   reviews: [
     {

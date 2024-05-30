@@ -14,7 +14,7 @@ const {
 // const auth = require("../middleware/auth");
 
 router.post("/addProduct",  addProduct);
-// router.get("/getProduct", auth, getProducts); // fetch all products
+router.get("/getProduct", getProducts); // fetch all products
 
 // router.post("/createProduct", auth, createProduct); // add new product
 

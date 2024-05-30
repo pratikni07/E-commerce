@@ -9,12 +9,6 @@ const SideCart = () => {
   return (
     <SheetContent>
       <SheetHeader>
-        {/* <div className="flex flex-col items-center justify-center h-screen">
-          <SheetTitle className="text-[20px]">Your Cart Is Empty!</SheetTitle>
-          <SheetDescription>
-            The best fashion is waiting to be added in your cart!
-          </SheetDescription>
-        </div> */}
 
         <SheetTitle className="text-[20px]">Your Cart!</SheetTitle>
         <SheetDescription>

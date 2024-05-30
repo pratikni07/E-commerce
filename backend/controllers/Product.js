@@ -2,100 +2,115 @@ const Product = require("../models/Product");
 const cloudinary = require("../config/cloudinary")
 const Subcategory = require("../models/SubCategory")
 const Category = require("../models/category")
+const { v4: uuidv4 } = require('uuid');  // For generating unique IDs
+
 exports.addProduct = async (req, res) => {
+  try {
+    const productData = req.body.productData;
+    const {
+      name,
+      shortdescription,
+      newPrice,
+      oldPrice,
+      discount,
+      description,
+      category,
+      subcategory,
+      stock,
+    } = productData;
 
-    try {
-      // console.log(req.body)
-        const productData = req.body;
-        console.log(productData)
-        console.log("1")
-        const {
-            name,
-            shortdescription,
-            newPrice,
-            oldPrice,
-            discount,
-            images,
-            description,
-            category,
-            subcategory,
-            stock,
-            // sizes,
-            // isAvailable,
-        } = productData;
-        // validate the request
-        // if (!name || !shortdescription || !newPrice || !oldPrice || !discount || !images || !description || !category || !subcategory || !stock) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "all field required",
-        //     });
-        // }
-        console.log("3")
-        // create unique product id
-        const productId = Math.random().toString(36).substr(2, 9);
-        // create a new product
-        console.log("4")
-        const imagesURL = await Promise.all(images.map(async (img, i) => {
-            const cloudinary_res = await cloudinary.uploader.upload(img, {
-                folder: "/ecommerce/products",
-                public_id: `${name}-${i + 1}`
-            });
-            return cloudinary_res.secure_url;
-        }));
-        console.log("5")
-
-        const product = await new Product({
-            name,
-            shortdescription,
-            productId,
-            newPrice,
-            oldPrice,
-            discount,
-            images: imagesURL,
-            description,
-            category,
-            subcategory,
-            stock,
-            isAvailable: true,
-        });
-        // save the product
-        await product.save();
-        console.log("6")
-        // findby id category and add push prodcut in it 
-        const categoryProduct = await Category.findById(category);
-        categoryProduct.products.push(product._id);
-        await categoryProduct.save();
-        console.log("7")
-        // findby id subcategory and add push prodcut in it
-        const subcategoryProduct = await Subcategory.findByIdAndUpdate(subcategory, {
-          $push: { products: product._id },
-        });
-        await subcategoryProduct.save();
-        console.log("8")
-
-        return res.status(200).json({
-            success: true,
-            data: product,
-            message: "Product added successfully",
-        });
-    } catch (error) {
-        // Set loading state to false in case of error
-        return res.status(400).json({
-            success: false,
-            message: "error in product add",
-        });
+    // Validate required fields
+    if (!name || !shortdescription || !newPrice || !oldPrice || !discount || !category || !subcategory || !stock) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required: name, shortdescription, newPrice, oldPrice, discount, category, subcategory, stock",
+      });
     }
+
+    // Create unique product ID
+    const productId = uuidv4();
+
+    // Create a new product instance
+    const product = new Product({
+      name,
+      shortdescription,
+      productId,
+      newPrice,
+      oldPrice,
+      discount,
+      description,
+      category,
+      subcategory,
+      stock,
+      isAvailable: true,
+    });
+
+    // Save the product
+    await product.save();
+
+    // Add product reference to the category
+    const categoryProduct = await Category.findById(category);
+    if (!categoryProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found",
+      });
+    }
+
+    console.log("Category found:", categoryProduct);
+    if (!categoryProduct.products) {
+      console.log("Initializing products array in category");
+      categoryProduct.products = [];
+    }
+    categoryProduct.products.push(product._id);
+    await categoryProduct.save();
+
+    // Add product reference to the subcategory
+    const subcategoryProduct = await Subcategory.findById(subcategory);
+    if (!subcategoryProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Subcategory not found",
+      });
+    }
+
+    console.log("Subcategory found:", subcategoryProduct);
+    if (!subcategoryProduct.products) {
+      console.log("Initializing products array in subcategory");
+      subcategoryProduct.products = [];
+    }
+
+    subcategoryProduct.products.push(product._id);
+    await subcategoryProduct.save();
+
+    return res.status(200).json({
+      success: true,
+      data: product,
+      message: "Product added successfully",
+    });
+  } catch (error) {
+    console.error("Error adding product:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Error in product add",
+    });
+  }
 };
+
+
+
 
 //  fetch products
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().populate('category').populate('subcategory');
     return res.status(200).json({
       success: true,
       data: products,
       message: "Products fetched successfully",
     });
+
   } catch (error) {
     return res.status(400).json({
       success: false,
