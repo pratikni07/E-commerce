@@ -1,8 +1,8 @@
 const Product = require("../models/Product");
-const cloudinary = require("../config/cloudinary")
-const Subcategory = require("../models/SubCategory")
-const Category = require("../models/category")
-const { v4: uuidv4 } = require('uuid');  // For generating unique IDs
+const cloudinary = require("../config/cloudinary");
+const Subcategory = require("../models/SubCategory");
+const Category = require("../models/category");
+const { v4: uuidv4 } = require("uuid"); // For generating unique IDs
 
 exports.addProduct = async (req, res) => {
   try {
@@ -20,10 +20,20 @@ exports.addProduct = async (req, res) => {
     } = productData;
 
     // Validate required fields
-    if (!name || !shortdescription || !newPrice || !oldPrice || !discount || !category || !subcategory || !stock) {
+    if (
+      !name ||
+      !shortdescription ||
+      !newPrice ||
+      !oldPrice ||
+      !discount ||
+      !category ||
+      !subcategory ||
+      !stock
+    ) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required: name, shortdescription, newPrice, oldPrice, discount, category, subcategory, stock",
+        message:
+          "All fields are required: name, shortdescription, newPrice, oldPrice, discount, category, subcategory, stock",
       });
     }
 
@@ -57,9 +67,9 @@ exports.addProduct = async (req, res) => {
       });
     }
 
-    console.log("Category found:", categoryProduct);
+    // console.log("Category found:", categoryProduct);
     if (!categoryProduct.products) {
-      console.log("Initializing products array in category");
+      // console.log("Initializing products array in category");
       categoryProduct.products = [];
     }
     categoryProduct.products.push(product._id);
@@ -74,9 +84,9 @@ exports.addProduct = async (req, res) => {
       });
     }
 
-    console.log("Subcategory found:", subcategoryProduct);
+    // console.log("Subcategory found:", subcategoryProduct);
     if (!subcategoryProduct.products) {
-      console.log("Initializing products array in subcategory");
+      // console.log("Initializing products array in subcategory");
       subcategoryProduct.products = [];
     }
 
@@ -98,19 +108,39 @@ exports.addProduct = async (req, res) => {
   }
 };
 
-
-
-
-//  fetch products
-exports.getProducts = async (req, res) => {
+//  fetch products getProductByCategoryandSubcategory
+exports.getProductByCategoryandSubcategory = async (req, res) => {
   try {
-    const products = await Product.find().populate('category').populate('subcategory');
+    const { category, subcategory } = req.query;
+    // console.log(category,subcategory)
+    const products = await Product.find({ category, subcategory })
+      .populate("category")
+      .populate("subcategory");
+
     return res.status(200).json({
       success: true,
       data: products,
       message: "Products fetched successfully",
     });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "error in product fetch",
+    });
+  }
+};
 
+exports.getProducts = async (req, res) => {
+  try {
+    const products = await Product.find()
+      .populate("category")
+      .populate("subcategory");
+
+    return res.status(200).json({
+      success: true,
+      data: products,
+      message: "Products fetched successfully",
+    });
   } catch (error) {
     return res.status(400).json({
       success: false,
@@ -120,10 +150,12 @@ exports.getProducts = async (req, res) => {
 };
 
 // get single product using id
-exports.getProduct = async (req, res) => {
+exports.getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.findById(id);
+    const product = await Product.findById(id)
+      .populate("category")
+      .populate("subcategory");
     if (!product) {
       return res.status(404).json({
         success: false,
@@ -136,9 +168,10 @@ exports.getProduct = async (req, res) => {
       message: "Product fetched successfully",
     });
   } catch (error) {
+    console.error("Error fetching product:", error);
     return res.status(400).json({
       success: false,
-      message: "error in product fetch",
+      message: "Error in product fetch",
     });
   }
 };
@@ -229,87 +262,68 @@ exports.getProductByCategory = async (req, res) => {
   }
 };
 
-// fetch product by category and subcategory
-exports.getProductByCategoryAndSubcategory = async (req, res) => {
-  try {
-    const { category, subcategory } = req.params;
-    const products = await Product.find({ category, subcategory });
-    if (!products) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
-    return res.status(200).json({
-      success: true,
-      data: products,
-      message: "Products fetched successfully",
-    });
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: "error in product fetch",
-    });
-  }
-};
-
 // const uploader = multer({
 //   storage: fileStorage.storage,
 // });
 
 // display product using filter
+
+// Get products by filter : price, fabric, color,size
+
 exports.filterProduct = async (req, res) => {
   try {
-    const { category, subcategory, price, size, color } = req.body;
-    const products = await Product.find({
-      category,
-      subcategory,
-      price,
-      size,
-      color,
-    });
-    if (!products) {
+    const { category, subcategory, price, fabric, color, size } = req.body;
+    minPrice = 100;
+    maxPrice = 1000;
+    // Build the query object dynamically based on the presence of each parameter
+    const query = {};
+    if (category && category.length > 0) {
+      query.category = { $in: category };
+    }
+    if (subcategory && subcategory.length > 0) {
+      query.subcategory = { $in: subcategory };
+    }
+    if (minPrice !== undefined && maxPrice !== undefined) {
+      query.price = { $gte: minPrice, $lte: maxPrice };
+    } else if (minPrice !== undefined) {
+      query.price = { $gte: minPrice };
+    } else if (maxPrice !== undefined) {
+      query.price = { $lte: maxPrice };
+    }
+    if (fabric && fabric.length > 0) {
+      query.fabric = { $in: fabric };
+    }
+    if (color && color.length > 0) {
+      query.color = { $in: color };
+    }
+    if (size && size.length > 0) {
+      query.size = { $in: size };
+    }
+
+    const products = await Product.find(query);
+
+    if (!products || products.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Products not found",
       });
     }
+
     return res.status(200).json({
       success: true,
       data: products,
       message: "Products fetched successfully",
     });
   } catch (error) {
+    console.error("Error in product fetch:", error);
     return res.status(400).json({
       success: false,
-      message: "error in product fetch",
+      message: "Error in product fetch",
     });
   }
 };
 
 // search product
-exports.searchProduct = async (req, res) => {
-  try {
-    const { search } = req.body;
-    const products = await Product.find({ name: { $regex: search } });
-    if (!products) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
-    return res.status(200).json({
-      success: true,
-      data: products,
-      message: "Products fetched successfully",
-    });
-  } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: "error in product fetch",
-    });
-  }
-};
 
 const getSortedProducts = (products, sortBy) => {
   if (sortBy === "price-desc") {

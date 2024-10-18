@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { Modal, useDisclosure } from "@nextui-org/modal";
 import SignUpForm from './SignUpForm';
 import LoginForm from './LoginForm';
+import { Link } from 'react-router-dom';
 const Profile = () => {
   const { token } = useSelector((state) => state.auth);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -28,7 +29,10 @@ const Profile = () => {
               startContent={<LayoutDashboard />}
               className="backgroundColor p-2 px-3 text-white font-bold"
             >
+              <Link to='/profile'>
               DashBoard
+              </Link>
+              
             </DropdownItem>
           ) : (
             <DropdownItem
@@ -45,18 +49,22 @@ const Profile = () => {
           {
             token && 
             <DropdownItem key="delete" className=" p-2 px-3 " startContent={<ShoppingBag />}>
+              <Link to='/orders'>
                 <p className='text-[#242F66]cursor-pointer'>
                 Order Status
               </p>
+              </Link>
             </DropdownItem>
             
           }
           {
             token && 
             <DropdownItem key="delete" className=" p-2 px-3 " startContent={<Heart />}>
+              <Link to='/wishlist'>
                 <p className='text-[#242F66]cursor-pointer'>
                 Whichlist
               </p>
+              </Link>
             </DropdownItem>
           }
 

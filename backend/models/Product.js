@@ -13,7 +13,7 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   newPrice: {
-    type: String,
+    type: Number,
     required: true,
   },
   oldPrice: {
@@ -52,6 +52,15 @@ const productSchema = new mongoose.Schema({
       },
     },
   ],
+  color:{
+    type: String,
+    
+  },
+  fabric:{
+    type: String,
+
+  },
+  
   stock: {
     type: Number,
     required: true,

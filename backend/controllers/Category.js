@@ -1,6 +1,6 @@
 const Category = require("../models/category");
 const Subcategory = require("../models/SubCategory");
-const cloudinary = require("../config/cloudinary")
+const cloudinary = require("../config/cloudinary");
 // Create a new category
 exports.addCategory = async (req, res) => {
   try {
@@ -29,13 +29,12 @@ exports.addCategory = async (req, res) => {
     // Upload image to Cloudinary
     const cloudinary_res = await cloudinary.uploader.upload(image, {
       folder: "/ecommerce/category",
-      public_id: category 
+      public_id: category,
     });
-
 
     const imageUrl = cloudinary_res.secure_url;
     const categoryToAdd = await Category.create({
-      name:category,
+      name: category,
       image: imageUrl, // Use the Cloudinary URL here
       description,
     });
@@ -54,7 +53,6 @@ exports.addCategory = async (req, res) => {
   }
 };
 
-
 // Get all categories
 exports.getAllCategories = async (req, res) => {
   try {
@@ -70,6 +68,8 @@ exports.getAllCategories = async (req, res) => {
     });
   }
 };
+
+// GET All sub category
 exports.getAllSubCategories = async (req, res) => {
   try {
     const subcategories = await Subcategory.find();
@@ -88,36 +88,64 @@ exports.getAllSubCategories = async (req, res) => {
 // create sbucategory by category id
 exports.addSubCategory = async (req, res) => {
   try {
-    const { name, image, description, category } = req.body;
-    // validate the request
+    const { image, subCategoryData } = req.body;
+    const { description, category } = subCategoryData;
+    const name = subCategoryData.subcategory;
+
+    // Validate the request
     if (!name || !image || !description || !category) {
       return res.status(400).json({
         success: false,
-        message: "all field required",
+        message: "All fields are required",
       });
     }
-    // check subcategory present in catgoery
+
+    // Check if the subcategory already exists
     const isSubCategoryExist = await Subcategory.findOne({ name });
     if (isSubCategoryExist) {
       return res.status(409).json({
         success: false,
-        message: "subcategory already exist",
+        message: "Subcategory already exists",
       });
     }
-    // create a new subcategory
-    const subcategory = await new Subcategory({
+
+    // Upload image to Cloudinary
+    const cloudinaryRes = await cloudinary.uploader.upload(image, {
+      folder: "/ecommerce/subcategory",
+      public_id: category,
+    });
+
+    const imageUrl = cloudinaryRes.secure_url;
+    const subcategory = new Subcategory({
       name,
-      image,
+      image: imageUrl,
       description,
       category,
     });
+
+    // Save the new subcategory
     await subcategory.save();
+
+    // Find the category and add the subcategory ID
+    const categoryData = await Category.findById(category);
+    if (!categoryData) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found",
+      });
+    }
+
+    // Push the subcategory ID to the category's subcategories array
+    categoryData.subcategories.push(subcategory._id);
+    await categoryData.save();
+
     res.status(201).json({
       success: true,
       message: "Subcategory created successfully",
       subcategory,
     });
   } catch (error) {
+    console.error(error); // Log the error for debugging
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -126,11 +154,13 @@ exports.addSubCategory = async (req, res) => {
 };
 
 // get all subcategory by category id
-exports.getSubCategories = async (req, res) => {
+exports.getSubCategoriesByCategoryId = async (req, res) => {
   try {
-    const { category } = req.params;
-    const subcategories = await Subcategory.find({ category });
-    if (!subcategories) {
+    const { categoryId } = req.params;
+    const subcategories = await Category.findById(categoryId).populate(
+      "subcategories"
+    );
+    if (!subcategories || subcategories.length === 0) {
       return res.status(404).json({
         success: false,
         message: "No subcategory found",

@@ -3,25 +3,43 @@ const router = express.Router();
 const {
   addProduct,
   getProducts,
-
+  getProductByCategoryandSubcategory,
   getProductById,
-  createProduct,
   updateProduct,
   deleteProduct,
+  getProductBySubcategory,
+  getProductByCategory,
+  filterProduct,
 } = require("../controllers/Product");
 
-// middleware to verify if the user is logged in or not
-// const auth = require("../middleware/auth");
+// Add a new product
+router.post("/addProduct", addProduct);
 
-router.post("/addProduct",  addProduct);
-router.get("/getProduct", getProducts); // fetch all products
+// Get all products
+router.get("/getProduct", getProducts);
 
-// router.post("/createProduct", auth, createProduct); // add new product
+// Get products by category and subcategory
+router.get(
+  "/getProductByCategoryandSubcategory",
+  getProductByCategoryandSubcategory
+);
 
-// router.post("/getproductbyId", getProductById); // get product by id from url parameter
+// Get a single product by ID
+router.get("/getProductById/:id", getProductById);
 
-// router.put("/updateproduct", auth, isSeller, updateProduct); // update product by id
+// Update a product
+router.put("/updateProduct/:id", updateProduct);
 
-// router.delete("/deleteproduct", auth, isSeller, deleteProduct); // delete product by id
+// Delete a product
+router.delete("/deleteProduct/:id", deleteProduct);
+
+// Get products by subcategory
+router.get("/getProductBySubcategory/:id", getProductBySubcategory);
+
+// Get products by category
+router.get("/getProductByCategory/:id", getProductByCategory);
+
+// Filter products
+router.post("/filterProduct", filterProduct);
 
 module.exports = router;

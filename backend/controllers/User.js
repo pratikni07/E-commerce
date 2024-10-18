@@ -2,18 +2,28 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const Cart = require("../models/Cart")
-const Wishlist = require("../models/Wishlist")
-const OTP  = require("../models/OTP")
-const otpGenerator = require("otp-generator")
+const Cart = require("../models/Cart");
+const Wishlist = require("../models/Wishlist");
+const OTP = require("../models/OTP");
+const Address = require("../models/Address");
+const otpGenerator = require("otp-generator");
+const Order = require("../models/Orders");
 // registsers a new user get name email password confirmation password and phone number
 exports.registerUser = async (req, res) => {
   try {
     // firstName, lastName, email, phoneNumber, password, confirmPassword, otp,
-    const { firstName, lastName, email, phoneNumber, password, confirmPassword,otp } =req.body;
-    const name = firstName +" "+ lastName;
+    const {
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      password,
+      confirmPassword,
+      otp,
+    } = req.body;
+    const name = firstName + " " + lastName;
     const phoneno = phoneNumber;
-    const confirmationPassword = confirmPassword
+    const confirmationPassword = confirmPassword;
 
     // Validate the request
     if (!name || !email || !password || !phoneno) {
@@ -49,7 +59,7 @@ exports.registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user
-    // create cart 
+    // create cart
     const newCart = new Cart();
     await newCart.save();
     // create wishlist
@@ -251,10 +261,9 @@ exports.loginWithPhoneNumberAndOtp = async (req, res) => {
 // add address
 exports.addAddress = async (req, res) => {
   try {
-    const { address, city, state, country, pincode } = req.body;
-
+    const { name, address, mobile, city, state, pincode } = req.body.formData;
     // Validate the request
-    if (!address || !city || !state || !country || !pincode) {
+    if (!address || !mobile || !city || !state || !pincode) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -262,7 +271,7 @@ exports.addAddress = async (req, res) => {
     }
 
     // Find the user by ID
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.body.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -270,18 +279,19 @@ exports.addAddress = async (req, res) => {
       });
     }
 
-    // Create a new address object
-    const newAddress = {
-      address,
-      city,
-      state,
-      country,
+    // Create a new address document using Address.create()
+    const newAddress = await Address.create({
+      user: user._id,
+      name,
+      mobile,
       pincode,
-    };
+      city,
+      address,
+      state,
+    });
 
-    // Add the new address to the user's address array
-    user.addresses.push(newAddress);
-
+    // Add the new address's _id to the user's address array
+    user.address.push(newAddress._id);
     // Save the user to update the address array
     await user.save();
 
@@ -406,9 +416,9 @@ exports.deleteUserAddress = async (req, res) => {
 };
 
 // fetch all addresses of a user
-exports.getAllUserAddresses=async(req, res)=> {
+exports.getAllUserAddresses = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.user.id });
+    const user = await User.findById(req.body.userId).populate("address");
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -417,7 +427,7 @@ exports.getAllUserAddresses=async(req, res)=> {
     }
     res.status(200).json({
       success: true,
-      addresses: user.addresses,
+      address: user.address,
     });
   } catch (err) {
     res.status(500).json({
@@ -425,10 +435,10 @@ exports.getAllUserAddresses=async(req, res)=> {
       message: "Server error",
     });
   }
-}
+};
 
 // forgot password using phone no and verify otp and update password
-exports.forgotPassword = async(req, res)=> {
+exports.forgotPassword = async (req, res) => {
   try {
     const { phoneno, otp, password, confirmationPassword } = req.body;
 
@@ -489,10 +499,10 @@ exports.forgotPassword = async(req, res)=> {
       message: "Server error",
     });
   }
-}
+};
 
 // change password
-exports.changePassword= async(req, res)=> {
+exports.changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmationPassword } = req.body;
 
@@ -549,10 +559,10 @@ exports.changePassword= async(req, res)=> {
       message: "Server error",
     });
   }
-}
+};
 
 // update user profile
-exports.updateUserProfile = async(req, res) =>{
+exports.updateUserProfile = async (req, res) => {
   try {
     const { name, email, phoneno } = req.body;
 
@@ -601,4 +611,54 @@ exports.updateUserProfile = async(req, res) =>{
       message: "Server error",
     });
   }
-}
+};
+
+// get all users
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({});
+    if (!users) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      users,
+    });
+  } catch (err) {
+    console.error("Get all users error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+exports.getUserDetails = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .select("-password")
+      .populate("address")
+      .populate({
+        path: "orders",
+        select: "_id total status",
+      });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching user details",
+      error: error.message,
+    });
+  }
+};
