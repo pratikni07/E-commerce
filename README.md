@@ -1,4 +1,4 @@
-# 🏪 Modern E-commerce Platform
+# E-commerce Platform
 
 A full-stack e-commerce platform built with MERN stack (MongoDB, Express.js, React, Node.js) , featuring a modern UI with Tailwind CSS.
 
